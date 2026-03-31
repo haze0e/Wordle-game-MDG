@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Wordle</title>
+    <style>
+        /* CSS: Styles the page and the grid to look like Wordle */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #121213;
+            /* Dark mode background */
+            color: white;
+            font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            /* 5 columns */
+            grid-template-rows: repeat(6, 60px);
+            /* 6 rows */
+            gap: 5px;
+        }
+        .green {
+            background-color: #538d4e !important;
+            border-color: #538d4e !important;
+            color: white;
+        }
+
+        .yellow {
+            background-color: #b59f3b !important;
+            border-color: #b59f3b !important;
+            color: white;
+        }
+
+        .grey {
+            background-color: #3a3a3c !important;
+            border-color: #3a3a3c !important;
+            color: white;
+        }
+
+        .tile {
+            border: 2px solid #3a3a3c;
+            /* Empty box border color */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-sizing: border-box;
+        }
+
+        /* The animation definition */
+        @keyframes pop {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+                border-color: #818384;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* The class that triggers the animation */
+        .animate-pop {
+            animation: pop 0.1s ease-in-out;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div id="board"></div>
+
+    <script src="./pika.js">
+
+
+    </script>
+
+</body>
+
+</html>
