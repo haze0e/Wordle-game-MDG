@@ -2,8 +2,7 @@ const board = document.getElementById("board");
 const rows = 6;
 const cols = 5;
 
-let currentRow = 0;
-let currentCol = 0;
+
 
 const words = [
     "aback", "abase", "abate", "abbey", "abbot", "abhor", "abide", "abled", "abode", "abort", "about",
@@ -240,16 +239,7 @@ const words = [
     "youth", "zebra", "zesty", "zonal"
 ];
 
-const randomIndex = Math.floor(Math.random() * words.length);
-let Random_word = words[randomIndex];
 
-
-for (let i = 0; i < rows * cols; i++) {
-    let tile = document.createElement("div");
-    tile.classList.add("tile");
-    tile.setAttribute("id", `tile-${i}`);
-    board.appendChild(tile);
-}
 
 function contain(s, c) {
     let exist = false;
@@ -291,90 +281,127 @@ function contain_not_at_pos(s, c, pos) {
     return exist;
 }
 
+function start_game() {
+    let currentRow = 0;
+    let currentCol = 0;
 
-document.addEventListener("keyup", (e) => {
+    const randomIndex = Math.floor(Math.random() * words.length);
+    let Random_word = words[randomIndex];
 
-    if (currentRow >= rows) return;
-
-    if (e.key >= "a" && e.key <= "z" && e.key.length === 1) {
-        if (currentCol < cols) {
-
-            const tileIndex = currentRow * cols + currentCol;
-            const tile = document.getElementById(`tile-${tileIndex}`);
-            tile.classList.add("animate-pop");
-            tile.innerText = e.key;
-            currentCol++;
-            setTimeout(() => {
-                tile.classList.remove("animate-pop");
-            }, 100);
-        }
+    for (let i = 0; i < rows * cols; i++) {
+        let tile = document.createElement("div");
+        tile.classList.add("tile");
+        tile.setAttribute("id", `tile-${i}`);
+        board.appendChild(tile);
     }
 
 
-    else if (e.key === "Backspace") {
-        if (currentCol > 0) {
-            currentCol--;
-            const tileIndex = currentRow * cols + currentCol;
-            const tile = document.getElementById(`tile-${tileIndex}`);
-            tile.innerText = "";
-        }
-    }
-    else if (e.key === "Enter") {
+    document.addEventListener("keyup", (e) => {
 
-        if (currentCol === cols) {
-            let user_string = "";
+        if (currentRow >= rows) return;
 
+        if (e.key >= "a" && e.key <= "z" && e.key.length === 1) {
+            if (currentCol < cols) {
 
-            for (let i = 0; i < cols; i++) {
-
-                const tileIndex = (currentRow * cols) + i;
+                const tileIndex = currentRow * cols + currentCol;
                 const tile = document.getElementById(`tile-${tileIndex}`);
-                user_string += tile.innerText;
-            }
-
-            let code = "";
-
-
-            for (let j = 0; j < cols; j++) {
-                let charac = user_string[j];
-                const tileIndex = (currentRow * cols) + j;
-                const tile = document.getElementById(`tile-${tileIndex}`);
-
-                if (contain_at_pos(Random_word, charac, j + 1)) {
-                    code += "g" + charac + (j + 1); // green: Correct spot
-                    tile.classList.add("green");
-                }
-                else if (contain(Random_word, charac)) {
-                    code += "y" + charac + (j + 1); // yellow: Wrong spot
-                    tile.classList.add("yellow");
-                }
-                else {
-                    code += "b" + charac + (j + 1); // black/grey: Not in word
-                    tile.classList.add("grey");
-                }
-            }
-
-
-            let CORRECT = true;
-            for (let t = 0; t < code.length; t += 3) {
-                if (code[t] !== 'g') {
-                    CORRECT = false;
-                    break;
-                }
-            }
-
-            if (CORRECT) {
-                alert("You guessed the word! It was: " + Random_word);
-
-                return;
-            }
-
-            currentRow++;
-            currentCol = 0;
-
-            if (currentRow >= rows && !CORRECT) {
-                alert("Game Over! The word was: " + Random_word);
+                tile.classList.add("animate-pop");
+                tile.innerText = e.key;
+                currentCol++;
+                setTimeout(() => {
+                    tile.classList.remove("animate-pop");
+                }, 100);
             }
         }
-    }
-}); 
+
+
+        else if (e.key === "Backspace") {
+            if (currentCol > 0) {
+                currentCol--;
+                const tileIndex = currentRow * cols + currentCol;
+                const tile = document.getElementById(`tile-${tileIndex}`);
+                tile.innerText = "";
+            }
+        }
+        else if (e.key === "Enter") {
+
+            if (currentCol === cols) {
+                let user_string = "";
+
+
+                for (let i = 0; i < cols; i++) {
+
+                    const tileIndex = (currentRow * cols) + i;
+                    const tile = document.getElementById(`tile-${tileIndex}`);
+                    user_string += tile.innerText.toLowerCase();
+                }
+
+                let code = "";
+
+
+                for (let j = 0; j < cols; j++) {
+                    let charac = user_string[j];
+                    const tileIndex = (currentRow * cols) + j;
+                    const tile = document.getElementById(`tile-${tileIndex}`);
+
+
+                    let tileColor = "";
+                    if (contain_at_pos(Random_word, charac, j + 1)) {
+                        code += "g" + charac + (j + 1);
+                        tileColor = "green";
+                    } else if (contain(Random_word, charac)) {
+                        code += "y" + charac + (j + 1);
+                        tileColor = "yellow";
+                    } else {
+                        code += "b" + charac + (j + 1);
+                        tileColor = "grey";
+                    }
+
+
+                    const flipDelay = j * 250;
+
+                    setTimeout(() => {
+
+                        tile.classList.add("flip");
+
+                        setTimeout(() => {
+                            tile.classList.add(tileColor);
+                        }, 250);
+
+                    }, flipDelay);
+                }
+                console.log(code);
+
+
+                let CORRECT = true;
+                for (let t = 0; t < code.length; t += 3) {
+                    if (code[t] !== 'g') {
+                        CORRECT = false;
+                        break;
+                    }
+                }
+
+                if (CORRECT) {
+                    alert("You guessed the word! It was: " + Random_word);
+
+                    return;
+                }
+
+                currentRow++;
+                currentCol = 0;
+
+                if (currentRow >= rows && !CORRECT) {
+                    alert("Game Over! The word was: " + Random_word);
+                }
+            }
+        }
+    })
+};
+
+
+start_game();
+
+function restart_game(){
+    board.innerHTML = "";
+    start_game();
+}

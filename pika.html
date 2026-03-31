@@ -18,6 +18,22 @@
             font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
         }
+        /* The Flip Animation */
+        @keyframes flipTile {
+            0% {
+                transform: rotateX(0deg);
+            }
+            50% {
+                transform: rotateX(-90deg); /* Flips it flat so you can't see it */
+            }
+            100% {
+                transform: rotateX(0deg);
+            }
+        }
+
+        .flip {
+            animation: flipTile 0.5s ease-in;
+        }
 
         #board {
             display: grid;
