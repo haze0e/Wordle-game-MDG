@@ -2,6 +2,66 @@ const board = document.getElementById("board");
 const rows = 6;
 const cols = 5;
 const restartBtn = document.getElementById("restart-btn");
+let stats = {
+    total_wins: 0,
+    total_losses: 0,
+    current_streak: 0
+};
+
+
+function getStatsBox(stats) {
+    // This fxn is made using AI..
+    const innerWidth = 17;
+
+    // Helper function to keep the right border aligned
+    const formatLine = (label, value) => {
+        const text = `${label} ${value}`;
+        // padEnd adds empty spaces until the string hits the innerWidth limit
+        return `| ${text.padEnd(innerWidth, ' ')} |`;
+    };
+
+    // Return the multi-line ASCII string
+    return `
++-------------------+
+|   PLAYER STATS    |
++-------------------+
+${formatLine("Wins:  ", stats.total_wins)}
+${formatLine("Losses:", stats.total_losses)}
+${formatLine("Streak:", stats.current_streak)}
++-------------------+`;
+}
+
+
+// const userObj = {
+//   username = "Maria",
+//   email: "maria@mail.com"
+// }
+
+// localStorage.setItem('user', JSON.stringify(userObj))
+
+function save_data() {
+    localStorage.setItem('userdata', JSON.stringify(stats));
+}
+
+// const storedUserData = localStorage.getItem('user')
+
+// if (storedUserData) {
+//   const userData = JSON.parse(storedUserData)
+//   // You can use userData here...
+// } else {
+//   console.log('User data not found in local storage')
+// }
+
+
+function get_data() {
+    const storedUserData = localStorage.getItem('userdata')
+    if (storedUserData) {
+        stats = JSON.parse(storedUserData);
+    }
+    else {
+        console.log("looks like playing game for first time");
+    }
+}
 
 import { words } from './words.js';
 import { allow_words } from './words.js';
@@ -37,6 +97,22 @@ function logToTerminal(message) {
 
     terminalContent.scrollTop = terminalContent.scrollHeight;
 }
+
+function logToTerminalWithout(message) {
+    const newLog = document.createElement("pre");
+
+
+    if (message === " ") {
+        newLog.innerHTML = "&nbsp;";
+    } else {
+        newLog.innerText = message;
+    }
+
+    terminalContent.appendChild(newLog);
+    terminalContent.scrollTop = terminalContent.scrollHeight;
+}
+
+
 
 function contain(s, c) {
     let exist = false;
@@ -85,6 +161,7 @@ let isGameOver = false;
 let isProcessing = false;
 
 function start_game() {
+    save_data();
     terminalContent.innerHTML = "";
     currentRow = 0;
     currentCol = 0;
@@ -93,7 +170,13 @@ function start_game() {
 
     const randomIndex = Math.floor(Math.random() * words.length);
     Random_word = words[randomIndex];
-    console.log("Target Word choosen");
+    console.log("Target Word choosen: " + Random_word);
+    let stats_stri = getStatsBox(stats);
+
+    logToTerminalWithout(stats_stri);
+    logToTerminalWithout(" ");
+
+
     logToTerminal("A random word choosen :)")
 
 
@@ -208,7 +291,7 @@ document.addEventListener("keyup", (e) => {
             }
 
 
-            if (!CORRECT && (currentRow < rows)) {
+            if (!CORRECT && (currentRow < rows - 1)) {
 
                 setTimeout(() => {
                     logToTerminal(`Input succesfully submitted: ${user_string}`)
@@ -222,13 +305,20 @@ document.addEventListener("keyup", (e) => {
 
             setTimeout(() => {
                 if (CORRECT) {
-                    logToTerminal("");
-                    logToTerminal("");
+                    logToTerminalWithout(" ");
+                    logToTerminalWithout(" ");
+                    stats.total_wins += 1;
+                    stats.current_streak += 1;
+                    save_data();
                     alert("You guessed the word! It was: " + Random_word);
-                    logToTerminal("You guessed the word! It was: " + Random_word);
-                    logToTerminal("Win +=1 :)")
-                    logToTerminal("");
-                    logToTerminal("");
+                    const winArt = `
++-------------------+
+|     YOU WIN!      |
+|   WORD GUESSED    |
++-------------------+`;
+                    logToTerminalWithout(winArt)
+                    logToTerminalWithout(" ");
+                    logToTerminalWithout(" ");
 
                     isGameOver = true;
                     isProcessing = false;
@@ -241,12 +331,21 @@ document.addEventListener("keyup", (e) => {
 
                 if (currentRow >= rows && !CORRECT) {
                     alert("Game Over! The word was: " + Random_word);
-                    setTimeout(() => {
-                        logToTerminal("")
-                        logToTerminal("")
-                        logToTerminal("Game Over! The word was: " + Random_word);
-                        logToTerminal("Streak broken :(")
-                    }, (6 * 250 + 150));
+                    stats.current_streak = 0;
+                    stats.total_losses += 1;
+                    save_data();
+                    const loseArt = `
++-------------------+
+|     GAME OVER     |
+|   STREAK BROKEN   |
++-------------------+`;
+                    logToTerminalWithout(" ")
+
+                    logToTerminalWithout(loseArt);
+                    logToTerminalWithout(" ")
+
+                    logToTerminal("The word was: " + Random_word);
+
 
                     isGameOver = true;
                 }
@@ -255,8 +354,12 @@ document.addEventListener("keyup", (e) => {
     }
 });
 
+
+get_data();
+
 start_game();
 
 if (restartBtn) {
     restartBtn.addEventListener("click", start_game);
+
 }
